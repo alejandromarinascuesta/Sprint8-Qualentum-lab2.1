@@ -1,0 +1,57 @@
+# Cargar las librerías necesarias
+library(ggplot2)
+library(forecast)
+library(tseries)
+
+# 1. Carga del dataset 'nottem'
+data("nottem")  # Cargar el dataset incluido en R
+
+# Inspeccionar la estructura del dataset
+print(class(nottem))  # Ver la clase del dataset
+print(summary(nottem))  # Resumen estadístico de los datos
+
+# Graficar la serie temporal
+plot(nottem, main = "Temperaturas Mensuales en Nottingham (1920-1939)",
+     xlab = "Año", ylab = "Temperatura", col = "blue")
+
+# 2. Exploración y preparación de datos
+# Descomponer la serie temporal para identificar componentes de tendencia, estacionalidad y aleatoriedad
+decomposed_nottem <- decompose(nottem, type = "multiplicative")
+
+# Graficar los componentes (tendencia, estacionalidad y aleatorio)
+plot(decomposed_nottem)
+
+# 3. Análisis de estacionariedad
+# Graficar los gráficos de autocorrelación (ACF y PACF)
+acf(nottem, main = "Gráfico ACF de la Serie Temporal")
+pacf(nottem, main = "Gráfico PACF de la Serie Temporal")
+
+# Aplicar la prueba de Dickey-Fuller para verificar la estacionariedad
+adf_test_result <- adf.test(nottem)
+print(adf_test_result)  # Imprimir los resultados de la prueba de Dickey-Fuller
+
+# 4. Transformación de la serie (si es necesario)
+# Si la serie no es estacionaria (p-valor de la prueba > 0.05), aplicar una diferenciación
+if(adf_test_result$p.value > 0.05) {
+  # Aplicar diferenciación para hacer la serie estacionaria
+  nottem_diff <- diff(nottem)
+  # Graficar la serie transformada
+  plot(nottem_diff, main = "Serie Temporal Diferenciada", xlab = "Año", ylab = "Temperatura Diferenciada", col = "green")
+  
+  # Verificar la estacionariedad nuevamente
+  adf_test_result_diff <- adf.test(nottem_diff)
+  print(adf_test_result_diff)  # Imprimir los resultados de la prueba de Dickey-Fuller
+}
+
+# 5. Detección de valores atípicos
+# Realizar un boxplot para detectar valores atípicos en la serie temporal
+boxplot(nottem, main = "Detección de Valores Atípicos en la Serie Temporal de Temperaturas", 
+        ylab = "Temperatura", col = "lightblue")
+
+# 6. Conclusión
+# El código anterior realiza el análisis completo de la serie temporal: 
+# - Carga y preparación de los datos
+# - Descomposición de la serie temporal
+# - Análisis de estacionariedad con ACF, PACF y prueba de Dickey-Fuller
+# - Transformación de la serie (diferenciación) si es necesario
+# - Detección de valores atípicos mediante un boxplot
